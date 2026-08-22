@@ -1,0 +1,59 @@
+# environment.yml — acv_bolivia (Conda)
+#
+# Derivado de las `dependencies` de pyproject.toml (fuente de verdad).
+# Solo dependencias runtime; las dev (pytest/black/flake8/mypy) se instalan
+# con:  conda env update --file environment.yml  -> luego  pip install -e .[dev]
+#
+# Crear / actualizar el entorno:
+#   conda env create -f environment.yml      # primera vez
+#   conda env update  -f environment.yml      # actualizaciones
+#   conda activate acv_bolivia
+#   pip install -e .                          # paquete en modo editable (ver sección pip)
+#
+# NOTA: NumPy debe fijarse <2.0 (compatible con Brightway2 y PIV/Foreground MC).
+
+name: acv_bolivia
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python>=3.10,<3.13
+
+  # Motor LCA (Brightway2 clásico)
+  - brightway2=2.4.7
+  - bw2calc=1.8.2
+  - bw2data=3.6.6
+  - bw2io=0.8.12
+  - bw2analyzer=0.10
+
+  # Numérico / científico
+  - numpy>=1.26,<2.0
+  - scipy>=1.10,<1.17
+  - pandas=2.2.2
+
+  # Datos y exportación
+  - openpyxl=3.1.5
+  - xlrd=2.0.2
+
+  # Visualización
+  - matplotlib=3.10.0
+  - seaborn=0.13.2
+
+  # Análisis de sensibilidad
+  - shap>=0.42,<0.45
+  - scikit-learn>=1.3,<1.5
+  - salib>=1.4.7
+  - xgboost>=1.7,<2.0
+
+  # Utilidades / Notebook
+  - tqdm>=4.65
+  - pyyaml>=6.0
+  - ipython>=8.0
+
+  # Paquete en modo editable (desarrollo). Usa pip para tomar el pyproject
+  # como fuente de versiones.
+  - pip
+  - pip:
+      - -e . --no-deps

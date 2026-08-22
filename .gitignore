@@ -1,0 +1,61 @@
+# ── Python ────────────────────────────────────────────────────────────────
+**/__pycache__/
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+*.so
+
+# ── Entornos virtuales ───────────────────────────────────────────────────
+.conda/
+.venv/
+env/
+venv/
+ENV/
+
+
+# ── Jupyter / Colab ──────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Testing / cobertura ──────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+
+# ── Brightway2 / Ecoinvent ───────────────────────────────────────────────
+
+.brightway2/
+brightway2data/
+*.bw2
+
+# ── Resultados y cachés generados por acv_bolivia ───────────────────────
+resultados/
+figuras/
+tesis/figuras/
+*.pkl
+cache/
+*_cache.json
+
+# ── Excel/salidas generadas (no las plantillas de entrada) ──────────────
+Reporte_*.xlsx
+Reporte_ACV*.xlsx
+
+# ── Sistema operativo / editor ───────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ── Google Drive (si Colab monta Drive dentro del working dir) ──────────
+drive/
+
+# ── Notas internas de desarrollo (solo local/backup, nunca se suben) ────
+dev/

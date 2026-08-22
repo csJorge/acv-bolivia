@@ -1,0 +1,47 @@
+{
+  "_comentario": "Plantilla de configuración para acv_bolivia. Copiar como settings.json y completar las rutas reales. 'rutas.bw2' se pasa a BRIGHTWAY2_DIR y 'rutas.entorno' apunta a la raíz del entorno Python que contiene las dependencias (Windows: .../envs/nombre; Linux/Colab: .../mi_entorno). Ambas rutas son leídas por infrastructure/composition y ACVEngine. Las secciones lca/montecarlo/sensibilidad sirven como referencia para pasar parámetros a ACVEngine.",
+
+  "proyecto": "acv_bolivia_tesis",
+  "inventario_nombre": "acv_bolivia_inventario",
+  "ecoinvent_source_db_name": "ecoinvent 3.12 cutoff",
+
+  "rutas": {
+    "inventario": "data/inventario_acv.xlsx",
+    "bw2":          "C:/ruta/a/BW2_DATA",
+    "entorno":      "C:/ruta/a/miniforge3/envs/tesis_env",
+    "base_output":  "resultados"
+  },
+  "lca": {
+    "patron_metodo":   "ReCiPe 2016",
+    "nivel_metodo":    "midpoint (H)",
+    "top_n_hotspot":   18,
+    "functional_unit": 1.0
+  },
+
+  "montecarlo": {
+    "iterations": 100
+  },
+
+  "sensibilidad": {
+    "exclude_methods": ["sobol", "morris"],
+    "analyzers": {
+      "delta_lca": {
+        "deltas": [0.1, 0.3]
+      },
+      "morris": {
+        "n_trajectories": 20,
+        "n_levels": 4
+      },
+      "sobol": {
+        "n_samples": 512,
+        "top_k_screening": 8,
+        "calc_second_order": false
+      },
+      "shap": {
+        "explainer_type": "tree",
+        "n_background": 100
+      }
+    }
+  }
+}
+

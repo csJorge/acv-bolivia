@@ -1,0 +1,139 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "acv-bolivia"
+version = "1.0.0"
+description = "Framework de Análisis de Ciclo de Vida (ACV/LCA) para proyectos de energía renovable en Bolivia — Brightway2 + Ecoinvent, Monte Carlo y análisis de sensibilidad multi-método."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Jorge Luis Corrales Suárez", email = "jcorralessuarez@gmail.com" },
+]
+keywords = ["lca", "life-cycle-assessment", "brightway2", "monte-carlo", "energia-renovable", "bolivia", "acv"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Intended Audience :: Science/Research",
+]
+
+dependencies = [
+    # Brightway2
+    "brightway2==2.4.7",
+    "bw2calc==1.8.2",
+    "bw2data==3.6.6",
+    "bw2io==0.8.12",
+    "bw2analyzer==0.10",
+
+    # Scientific Computing
+    "numpy>=1.26.0,<2.0.0",
+    "scipy>=1.10.0,<1.17.0",
+    "pandas==2.2.2",
+
+    # Data I/O
+    "openpyxl==3.1.5",
+    "xlrd==2.0.2",
+
+    # Visualization
+    "matplotlib==3.10.0",
+    "seaborn==0.13.2",
+
+    # ML/Sensitivity
+    "shap>=0.42.0,<0.45.0",
+    "scikit-learn>=1.3.0,<1.5.0",
+    "SALib>=1.4.7",
+
+    # Utilities
+    "tqdm>=4.65.0",
+    "pyyaml>=6.0",
+    "xgboost>=1.7.0,<2.0.0",
+    "ipython>=8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "flake8>=6.0",
+    "flake8-pyproject>=1.2.0",
+    "mypy>=1.0",
+    "pandas-stubs>=2.0",
+]
+performance = ["pypardiso>=0.4"]
+
+
+# ==============================================================================
+# EMPAQUETADO
+# ==============================================================================
+
+[tool.setuptools.packages.find]
+include = ["acv_bolivia*"]
+
+[tool.setuptools.package-data]
+acv_bolivia = ["py.typed"]
+
+
+# ==============================================================================
+# CONFIGURACIÓN DE HERRAMIENTAS DE PRUEBA Y CALIDAD DE CÓDIGO
+# ==============================================================================
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+markers = [
+    "requires_brightway: requiere brightway2/bw2data instalados y una BD Ecoinvent construida (se salta automáticamente si no están disponibles, ver tests/conftest.py)",
+]
+addopts = "-v --strict-markers"
+
+[tool.coverage.run]
+source = ["acv_bolivia"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "."
+explicit_package_bases = true
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+no_implicit_optional = true
+strict_equality = true
+disallow_untyped_defs = false   # Estrategia por capas: primero core/, luego application/
+show_error_codes = true
+pretty = true
+exclude = ["^tests/", "^build/", "^dist/"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311"]
+
+
+[[tool.mypy.overrides]]
+module = [
+    "brightway2.*", 
+    "bw2calc.*", 
+    "bw2data.*", 
+    "bw2io.*",
+    "SALib.*", 
+    "shap.*", 
+    "pypardiso.*", 
+    "seaborn.*", 
+    "xgboost.*", 
+    "sklearn.*",
+    "scipy.*",
+]
+ignore_missing_imports = true
