@@ -110,10 +110,12 @@ def main() -> None:
     # ==========================================================================
     # Tres modos combinables (ver docs/METODOLOGIA.md):
     #   run_bw_mc=True           Monte Carlo completo de Brightway2 (FG + BG).
-    #   run_foreground_mc=True   solo foreground (Excel); necesario para
-    #                            Correlation/PRCC y SHAP.
+    #   run_foreground_mc=True   solo foreground (Excel).
     #   run_piv=True             aproximacion lineal PIV (h-vectors x muestras),
     #                            con o sin pedigri.
+    # Las muestras por componente (component_samples) las pueblan tanto
+    # run_foreground_mc como run_piv: cualquiera de los dos basta para
+    # Correlation/PRCC, Regression/SRRC y SHAP.
     # Cada escenario se guarda en cache bajo
     #   BASE_OUTPUT/<fase>/<fecha>/<cache_filename>.pkl.gz
     # y se recupera en otra sesion con use_cache=True (por defecto).
@@ -187,15 +189,15 @@ def main() -> None:
     # ==========================================================================
     # Multi-metodo: Delta LCA, Morris, Sobol, Correlation/PRCC, Regression/SRRC
     # y SHAP. delta_lca/morris/sobol evaluan el modelo en vivo (no requieren
-    # simulacion previa); correlation/regression/shap consumen las muestras FG
-    # de run_montecarlo(run_foreground_mc=True) y se omiten automaticamente si
-    # no hay variabilidad real.
+    # simulacion previa); correlation/regression/shap consumen las muestras por
+    # componente (component_samples) que deja run_montecarlo con
+    # run_foreground_mc=True o run_piv=True.
     # run_sensitivity() solo calcula los reportes; los graficos y el Excel se
     # generan con plot_sensitivity() y export_sensitivity().
     eng.run_sensitivity(
         analyzers=None,  # Ejecuta todos los analizadores
         exclude_methods={"morris", "sobol"},  # Metodos de sensibilidad a excluir.
-        method_indices=[4],  # Metodo a Evaluar.
+        method_indices=[m],  # Metodo a Evaluar.
         project_indices=None,  # Indice del proyecto a evaluar,
         use_cache=True,  # Cargar cache previa si existe.
         save_cache=True,  # Guardar los reportes en disco.
@@ -211,7 +213,7 @@ def main() -> None:
     # Version A: n_synthetic_samples = 200
     eng.run_sensitivity(
         exclude_methods={"sobol", "morris"},  # quita sobol para no encarecer la demo
-        method_indices=[4],
+        method_indices=[m],
         n_synthetic_samples=200,
         cache_filename="sens_v200",
     )
@@ -220,7 +222,7 @@ def main() -> None:
     # Version B: n_synthetic_samples = 500
     eng.run_sensitivity(
         exclude_methods={"sobol", "morris"},
-        method_indices=[4],
+        method_indices=[m],
         n_synthetic_samples=500,
         cache_filename="sens_v500",
     )
@@ -232,17 +234,7 @@ def main() -> None:
             f"errores = {rep.has_errors}"
         )
 
-    # --- 1) Confiabilidad de los indices (Morris / Sobol) ---
-    from acv_bolivia.analysis.convergence import (
-        summarize_morris_reliability,
-        summarize_sobol_reliability,
-    )
-
-    if "morris" in rep_v500.results:
-        print(summarize_morris_reliability(rep_v500.get_raw("morris")).summary())
-    if "sobol" in rep_v500.results:  # solo si se habilito sobol en run_sensitivity
-        print(summarize_sobol_reliability(rep_v500.get_raw("sobol")).summary())
-
+    # --- 1) Top componentes (sens_v500) ---
     print("\nTop componentes (sens_v500):", rep_v500.top_components(n=10))
 
     # --- 2) Estabilidad del ranking entre las DOS versiones ---
@@ -306,7 +298,7 @@ def main() -> None:
     # Fase 2A: PIV or PIV+pedigrie
     piv_plotter = eng.piv_plotter(project_id=project_name[p])
     piv_plotter.piv_hotspot_distributions(
-        project_name="El dorado",
+        project_name=project_name[p],
         method_id=metodos[m],
     )
 
@@ -319,7 +311,7 @@ def main() -> None:
         method_id=metodos[m],
     )
 
-    # Tornado (top_n componentes)
+    # PIV: 3 graficos a la vez (hotspot distributions + SHAP vs PIV + ranking)
     piv_plotter.plot_all_piv(
         report=eng.sensitivity_result.get_report(
             project_id=project_name[p], method_id=metodos[m]

@@ -42,6 +42,7 @@ from ..plotting.theme import (
     GRID_ALPHA,
     INK,
     MUTED,
+    PALETTE_SEQ,
     apply_theme,
     categorical_palette,
     figsize_h,
@@ -450,7 +451,7 @@ class LCAPlotter:
         df_raw = pd.DataFrame({k: pd.Series(v) for k, v in data.items()})
 
         fig, ax = plt.subplots(figsize=(12, 7))
-        palette = sns.color_palette("viridis", n_colors=df_raw.shape[1])
+        palette = sns.color_palette(PALETTE_SEQ, n_colors=df_raw.shape[1])
         sns.boxplot(data=df_raw, ax=ax, palette=palette, width=0.55, fliersize=2)
 
         method_label = (

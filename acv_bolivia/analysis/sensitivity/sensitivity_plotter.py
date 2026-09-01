@@ -15,13 +15,12 @@ import warnings
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import matplotlib.axes
 import matplotlib.figure
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.typing import NDArray
 
 from ...analysis.sensitivity.methods import DeltaLCAResult
 from ...core.domain.models import SensitivityReport
@@ -159,7 +158,7 @@ def _build_tornado(
 
 def _build_correlation(
     report: SensitivityReport, top_n: int = 6
-) -> tuple[matplotlib.figure.Figure | None, NDArray[np.object_] | None]:
+) -> PlotResult:
     raw = report.get_raw("correlation")
     if not raw:
         return None, None
@@ -220,7 +219,7 @@ def _build_correlation(
 
     fig.suptitle("Correlación score vs. muestra Montecarlo por componente", color=INK)
     fig.tight_layout()
-    return fig, axes
+    return cast(PlotResult, (fig, axes))
 
 
 def _build_morris(

@@ -34,11 +34,11 @@ PALETTE_DIVERGENT = ["#A9DFBF", "#FAD7A0", "#F1948A"]
 # gráfico (barras apiladas, boxplots por insumo, etc.). Se basan en los mapas
 # cualitativos de matplotlib, que maximizan la distancia de matiz entre colores
 # (a diferencia de las secuenciales, que solo varían tono/luminosidad).
-_PALETTE_TAB20 = sns.color_palette("tab20").as_hex()
-_PALETTE_TAB20B = sns.color_palette("tab20b").as_hex()
-_PALETTE_TAB20C = sns.color_palette("tab20c").as_hex()
-PALETTE_CATEGORICAL = _PALETTE_TAB20
-_CAT_COMBINED = _PALETTE_TAB20 + _PALETTE_TAB20B + _PALETTE_TAB20C
+_PALETTE_TAB20: list[str] = sns.color_palette("tab20").as_hex()
+_PALETTE_TAB20B: list[str] = sns.color_palette("tab20b").as_hex()
+_PALETTE_TAB20C: list[str] = sns.color_palette("tab20c").as_hex()
+PALETTE_CATEGORICAL: list[str] = _PALETTE_TAB20
+_CAT_COMBINED: list[str] = _PALETTE_TAB20 + _PALETTE_TAB20B + _PALETTE_TAB20C
 
 
 def categorical_palette(n_colors: int) -> list[str]:

@@ -1,6 +1,5 @@
 # environment.yml — acv_bolivia (Conda)
 #
-# Derivado de las `dependencies` de pyproject.toml (fuente de verdad).
 # Solo dependencias runtime; las dev (pytest/black/flake8/mypy) se instalan
 # con:  conda env update --file environment.yml  -> luego  pip install -e .[dev]
 #

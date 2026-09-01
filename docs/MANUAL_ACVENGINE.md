@@ -227,7 +227,7 @@ intercambiables, ni siquiera en cómo tratan resultados negativos).
 | Parámetro | Tipo | Default | Descripción |
 |---|---|---|---|
 | `run_bw_mc` | `bool` | `True` | Monte Carlo completo de Brightway2 (foreground + background). |
-| `run_foreground_mc` | `bool` | `False` | Monte Carlo de foreground (solo Excel). **Necesario** para PRCC/SHAP después. |
+| `run_foreground_mc` | `bool` | `False` | Monte Carlo de foreground (solo Excel). |
 | `run_piv` | `bool` | `False` | Aproximación lineal PIV (h-vectors × muestras). |
 | `iterations` | `int` | `1000` | Iteraciones para BW MC. |
 | `fg_iterations` | `int` | `500` | Iteraciones para FG MC y/o PIV. |
@@ -250,10 +250,11 @@ intercambiables, ni siquiera en cómo tratan resultados negativos).
 # Solo BW MC (modo más común)
 eng.run_montecarlo(run_bw_mc=True, iterations=1000)
 
-# BW MC + FG MC (necesario para sensibilidad SHAP/PRCC)
+# BW MC + FG MC (muestras de foreground para sensibilidad SHAP/PRCC)
 eng.run_montecarlo(run_bw_mc=True, run_foreground_mc=True, fg_iterations=500)
 
 # PIV rápido (nombre BD tomado de settings.json)
+# p. ej.: ED_SMC_PIV1000 -> puede alimentar SHAP/PRCC (ver nota abajo)
 eng.run_montecarlo(run_bw_mc=False, run_piv=True)
 
 # PIV indicando la BD explícitamente
@@ -281,7 +282,7 @@ generación de gráficos y Excel se hace explícitamente después con
 | `exclude_methods` | `set[str]` | `None` | **Analizadores de sensibilidad** a excluir (p. ej. `{"morris", "sobol"}`). Nombres válidos: `delta_lca`, `morris`, `sobol`, `correlation`, `regression`, `shap`. Los nombres desconocidos se ignoran con un warning. |
 | `method_indices` | `list[int]` | `None` | Índices de métodos de **impacto** a incluir (de `lca_result.methods`). `None` = todos. |
 | `project_indices` | `list[int]` | `None` | Índices de proyectos a incluir. `None` = todos. |
-| `component_samples` | `dict` | `None` | Muestras sincronizadas para los analizadores por muestra (correlation/PRCC, regression/SRRC, SHAP). `None` = usa `mc_result.component_samples` (poblado si se corrió `run_foreground_mc=True`). |
+| `component_samples` | `dict` | `None` | Muestras sincronizadas para los analizadores por muestra (correlation/PRCC, regression/SRRC, SHAP). `None` = usa `mc_result.component_samples` (lo pueblan `run_foreground_mc=True` **o** `run_piv=True`). |
 | `n_synthetic_samples` | `int` | `500` | Muestras sintéticas de respaldo si no hay `component_samples` reales. |
 | `analyzer_settings` | `dict` | `None` | Ajustes por analizador: `{"sobol": {"n_samples": 256}, "morris": {"n_trajectories": 30}}`. Prioridad por parámetro: `analyzer_settings` > `sensibilidad.analyzers` (settings.json, + alias planos legacy) > default del analizador. Se ignora si `analyzers` no es `None`. |
 | `dependency_config` | `dict` | `None` | Igual que en `run_montecarlo()`, solo si se generan muestras sintéticas. |
@@ -292,14 +293,16 @@ generación de gráficos y Excel se hace explícitamente después con
 
 Los analizadores `delta_lca`, `morris` y `sobol` evalúan el modelo en vivo y
 no necesitan simulación previa; `correlation`, `regression` y `shap` consumen
-muestras MC y se omiten automáticamente si no hay variabilidad real.
+muestras por componente (`component_samples`) y se omiten automáticamente si
+no hay variabilidad real.
 
 ```python
 eng.run_sensitivity()                            # todo con lo que haya
 eng.run_sensitivity(method_indices=[0, 3])       # solo métodos 0 y 3
 eng.run_sensitivity(exclude_methods={"morris", "sobol"})  # sin Morris/Sobol
 # gráficos y Excel se generan de forma explícita:
-eng.plot_sensitivity("El Dorado", metodos[4])
+eng.plot_sensitivity("El Dorado", metodos[4])    # cierra figuras (default)
+eng.plot_sensitivity("El Dorado", metodos[4], close_figs=False)  # verlas inline
 eng.export_sensitivity("El Dorado", metodos[4], nombre="Sensibilidad_Final")
 ```
 
@@ -345,7 +348,7 @@ las combinaciones disponibles).
 
 ---
 
-### 7.7 `eng.plot_sensitivity(project_id, method_id, output_dir=None)` → `list[Path]`
+### 7.7 `eng.plot_sensitivity(project_id, method_id, output_dir=None, close_figs=True)` → `list[Path]`
 
 Genera los gráficos de un reporte de sensibilidad **ya calculado**, sin volver
 a correr el análisis. Es el homólogo de `export_sensitivity()` para PNG y
@@ -356,10 +359,14 @@ permite replotear una combinación con otro directorio.
 | `project_id` | `str` | - | Nombre del proyecto. |
 | `method_id` | `MethodId` | - | Tupla completa del método, tal como aparece en `lca_result.methods`. |
 | `output_dir` | `str \| Path` | `None` | Directorio de salida de los PNG. `None` = carpeta fechada `graficos`. |
+| `close_figs` | `bool` | `True` | Si `True`, cierra cada figura tras guardarla. Si `False`, las deja abiertas para mostrarlas inline en un notebook. |
 
 ```python
 eng.run_sensitivity()
+# Guarda PNG y los cierra (por defecto):
 eng.plot_sensitivity("El Dorado", ("ReCiPe 2016", "climate change", "kg CO2 eq"))
+# Guarda PNG pero deja las figuras abiertas (para verlas en Jupyter):
+eng.plot_sensitivity("El Dorado", metodos[4], close_figs=False)
 ```
 
 **Errores:** `RuntimeError` si `run_sensitivity()` no se llamó antes.
@@ -625,7 +632,8 @@ if report is not None:
   impacto. Para limitar métodos de impacto usa `method_indices`.
 - **`ecoinvent_db_name` es opcional** si `settings.json` define
   `ecoinvent_source_db_name`.
-- Para **PRCC/SHAP** necesitas `run_montecarlo(run_foreground_mc=True)` (con
+- Para **PRCC/SHAP** hacen falta `component_samples`, que las pueblan
+  `run_montecarlo(run_foreground_mc=True)` **o** `run_piv=True` (con
   `fg_iterations` suficientes).
 - `run_montecarlo()` con `run_piv=True` y `include_pedigree=True` usa
   `h_pedigree_n` iteraciones para estimar la incertidumbre de pedigrí del

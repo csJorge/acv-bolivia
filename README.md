@@ -92,5 +92,5 @@ MIT - ver [`LICENSE`](LICENSE).
 
 ## Autor
 
-Jorge Luis Corrales Suárez - Universidad Mayor de San Simón (UMSS), Cochabamba,
+Jorge Luis Corrales Suarez - Universidad Mayor de San Simón (UMSS), Cochabamba,
 Bolivia.

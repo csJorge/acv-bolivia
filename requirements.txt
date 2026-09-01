@@ -1,7 +1,4 @@
 # requirements.txt — acv_bolivia
-#
-# Derivado de las `dependencies` de pyproject.toml (fuente de verdad).
-# Si cambias las versiones, actualiza pyproject.toml y regenera este archivo.
 
 # ── Motor LCA (Brightway2 clásico) ──────────────────────────────────────────
 brightway2==2.4.7
